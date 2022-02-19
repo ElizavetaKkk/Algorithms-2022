@@ -2,9 +2,7 @@ package lesson1;
 
 import kotlin.NotImplementedError;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,14 +44,14 @@ public class JavaTasks {
     static public void sortTimes(String inputName, String outputName) {
         // Трудоемкость = O(N*log N)
         // Ресурсоемкость = O(N)
-        try(FileWriter write = new FileWriter(outputName);
-            FileReader read = new FileReader(inputName))
+        try(FileWriter writer = new FileWriter(outputName);
+            FileReader reader = new FileReader(inputName))
         {
             // Задаем нужный формат времени и добавляем в list только подходящи под него строки
             // При несоответсвии формату бросаем исключение
             SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss aa");
             ArrayList<Integer> list = new ArrayList<>();
-            Scanner scanner = new Scanner(read);
+            Scanner scanner = new Scanner(reader);
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 try {
@@ -65,7 +63,7 @@ public class JavaTasks {
             // Сортируем отобранные строки и записываем их в файл в исходном формате
             StringBuilder line = new StringBuilder();
             list.stream().sorted().forEach(value -> line.append(format.format(new Date(value))).append("\n"));
-            write.write(line.toString());
+            writer.write(line.toString());
         } catch (IOException | ParseException e){
             e.printStackTrace();
         }
@@ -131,8 +129,35 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
-    static public void sortTemperatures(String inputName, String outputName) {
-        throw new NotImplementedError();
+    static public void sortTemperatures(String inputName, String outputName) throws IOException {
+        // Трудоемкость = O(N)
+        // Ресурсоемкость = O(N)
+        int min = 2730;
+        ArrayList<Integer> list = new ArrayList<>();
+        BufferedReader reader = new BufferedReader(new FileReader(inputName));
+        String str = reader.readLine();
+        // При записи чисел из файла в list переводим их в целые (умножение на 10)
+        while (str != null) {
+            int t = (int) (Double.parseDouble(str) * 10);
+            list.add(t);
+            str = reader.readLine();
+        }
+        reader.close();
+        // Переносим числа в массив, чтобы использовать метод quickSort
+        int size = list.size();
+        int[] arr = new int[size];
+        for (int i = 0; i < size; i++) {
+            arr[i] = list.get(i);
+        }
+        Sorts.quickSort(arr);
+        // Переводим значения в изначальный формат и записываем в выходной файл
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputName));
+        for (int el : arr) {
+            double t = (double) el / 10;
+            writer.write(String.valueOf(t));
+            writer.newLine();
+        }
+        writer.close();
     }
 
     /**
