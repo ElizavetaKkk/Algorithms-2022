@@ -2,6 +2,15 @@ package lesson1;
 
 import kotlin.NotImplementedError;
 
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Scanner;
+
 @SuppressWarnings("unused")
 public class JavaTasks {
     /**
@@ -35,7 +44,31 @@ public class JavaTasks {
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
     static public void sortTimes(String inputName, String outputName) {
-        throw new NotImplementedError();
+        // Трудоемкость = O(N*log N)
+        // Ресурсоемкость = O(N)
+        try(FileWriter write = new FileWriter(outputName);
+            FileReader read = new FileReader(inputName))
+        {
+            // Задаем нужный формат времени и добавляем в list только подходящи под него строки
+            // При несоответсвии формату бросаем исключение
+            SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss aa");
+            ArrayList<Integer> list = new ArrayList<>();
+            Scanner scanner = new Scanner(read);
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                try {
+                    list.add((int) format.parse(line).getTime());
+                } catch (ParseException e) {
+                    throw new ParseException("Incorrect date format", e.getErrorOffset());
+                }
+            }
+            // Сортируем отобранные строки и записываем их в файл в исходном формате
+            StringBuilder line = new StringBuilder();
+            list.stream().sorted().forEach(value -> line.append(format.format(new Date(value))).append("\n"));
+            write.write(line.toString());
+        } catch (IOException | ParseException e){
+            e.printStackTrace();
+        }
     }
 
     /**
