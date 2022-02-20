@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Scanner;
 
 @SuppressWarnings("unused")
@@ -42,8 +43,6 @@ public class JavaTasks {
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
     static public void sortTimes(String inputName, String outputName) {
-        // Трудоемкость = O(N*log N)
-        // Ресурсоемкость = O(N)
         try(FileWriter writer = new FileWriter(outputName);
             FileReader reader = new FileReader(inputName))
         {
@@ -68,6 +67,8 @@ public class JavaTasks {
             e.printStackTrace();
         }
     }
+    // Трудоемкость = O(N*log N)
+    // Ресурсоемкость = O(N)
 
     /**
      * Сортировка адресов
@@ -130,8 +131,6 @@ public class JavaTasks {
      * 121.3
      */
     static public void sortTemperatures(String inputName, String outputName) throws IOException {
-        // Трудоемкость = O(N)
-        // Ресурсоемкость = O(N)
         int min = 2730;
         ArrayList<Integer> list = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(inputName));
@@ -159,6 +158,8 @@ public class JavaTasks {
         }
         writer.close();
     }
+    // Трудоемкость = O(N)
+    // Ресурсоемкость = O(N)
 
     /**
      * Сортировка последовательности
@@ -189,9 +190,50 @@ public class JavaTasks {
      * 2
      * 2
      */
-    static public void sortSequence(String inputName, String outputName) {
-        throw new NotImplementedError();
+    static public void sortSequence(String inputName, String outputName) throws IOException {
+        ArrayList<Integer> list = new ArrayList<>();
+        HashMap<Integer, Integer> map = new HashMap<>();
+        BufferedReader reader = new BufferedReader(new FileReader(inputName));
+        String s = reader.readLine();
+        // Записываем в map, сколько раз повторялось каждое из чисел
+        while (s != null) {
+            int n = 1;
+            int t = Integer.parseInt(s);
+            list.add(t);
+            if (map.containsKey(t)) {
+                n += map.get(t);
+                map.replace(t, n);
+            } else {
+                map.put(t, n);
+            }
+            s = reader.readLine();
+        }
+        int maxN = 0;
+        int maxKey = 0;
+        // Выбор числа с максимальным кол-вом повторений
+        for (HashMap.Entry<Integer, Integer> entry: map.entrySet()) {
+            if (entry.getValue() > maxN) {
+                maxN = entry.getValue();
+                maxKey = entry.getKey();
+            } else if (entry.getValue() == maxN && entry.getKey() < maxKey) {
+                maxKey = entry.getKey();
+            }
+        }
+        // Сначала записываем в файл все числа, кроме выбранных на предыдущем шаге, а после - самые часто встречаемые
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputName))) {
+            for (Integer el : list) {
+                if (el != maxKey) {
+                    writer.write(el + System.lineSeparator());
+                }
+            }
+            while (maxN != 0) {
+                writer.write(maxKey + System.lineSeparator());
+                maxN--;
+            }
+        }
     }
+    // Трудоемкость = O(N)
+    // Ресурсоемкость = O(N)
 
     /**
      * Соединить два отсортированных массива в один
