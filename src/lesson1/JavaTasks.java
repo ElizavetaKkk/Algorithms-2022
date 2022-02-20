@@ -5,10 +5,7 @@ import kotlin.NotImplementedError;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaTasks {
@@ -211,7 +208,7 @@ public class JavaTasks {
         int maxN = 0;
         int maxKey = 0;
         // Выбор числа с максимальным кол-вом повторений
-        for (HashMap.Entry<Integer, Integer> entry: map.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry: map.entrySet()) {
             if (entry.getValue() > maxN) {
                 maxN = entry.getValue();
                 maxKey = entry.getKey();
