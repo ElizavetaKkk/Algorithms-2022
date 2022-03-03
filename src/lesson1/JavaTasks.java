@@ -39,9 +39,8 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public void sortTimes(String inputName, String outputName) throws ParseException, IOException {
-        FileWriter writer = new FileWriter(outputName);
-        FileReader reader = new FileReader(inputName);
+    static public void sortTimes(String inputName, String outputName) throws IOException, ParseException {
+        BufferedReader reader = new BufferedReader(new FileReader(inputName));
         // Задаем нужный формат времени и добавляем в list только подходящи под него строки
         // При несоответсвии формату бросаем исключение
         SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss aa");
@@ -58,7 +57,9 @@ public class JavaTasks {
         // Сортируем отобранные строки и записываем их в файл в исходном формате
         StringBuilder line = new StringBuilder();
         list.stream().sorted().forEach(value -> line.append(format.format(new Date(value))).append("\n"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputName));
         writer.write(line.toString());
+        writer.close();
     }
     // Трудоемкость = O(N*log N)
     // Ресурсоемкость = O(N)
