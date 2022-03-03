@@ -39,30 +39,26 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public void sortTimes(String inputName, String outputName) {
-        try(FileWriter writer = new FileWriter(outputName);
-            FileReader reader = new FileReader(inputName))
-        {
-            // Задаем нужный формат времени и добавляем в list только подходящи под него строки
-            // При несоответсвии формату бросаем исключение
-            SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss aa");
-            ArrayList<Integer> list = new ArrayList<>();
-            Scanner scanner = new Scanner(reader);
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                try {
-                    list.add((int) format.parse(line).getTime());
-                } catch (ParseException e) {
-                    throw new ParseException("Incorrect date format", e.getErrorOffset());
-                }
+    static public void sortTimes(String inputName, String outputName) throws ParseException, IOException {
+        FileWriter writer = new FileWriter(outputName);
+        FileReader reader = new FileReader(inputName);
+        // Задаем нужный формат времени и добавляем в list только подходящи под него строки
+        // При несоответсвии формату бросаем исключение
+        SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss aa");
+        ArrayList<Integer> list = new ArrayList<>();
+        Scanner scanner = new Scanner(reader);
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            try {
+                list.add((int) format.parse(line).getTime());
+            } catch (ParseException e) {
+                throw new ParseException("Incorrect date format", e.getErrorOffset());
             }
-            // Сортируем отобранные строки и записываем их в файл в исходном формате
-            StringBuilder line = new StringBuilder();
-            list.stream().sorted().forEach(value -> line.append(format.format(new Date(value))).append("\n"));
-            writer.write(line.toString());
-        } catch (IOException | ParseException e){
-            e.printStackTrace();
         }
+        // Сортируем отобранные строки и записываем их в файл в исходном формате
+        StringBuilder line = new StringBuilder();
+        list.stream().sorted().forEach(value -> line.append(format.format(new Date(value))).append("\n"));
+        writer.write(line.toString());
     }
     // Трудоемкость = O(N*log N)
     // Ресурсоемкость = O(N)
@@ -129,34 +125,35 @@ public class JavaTasks {
      */
     static public void sortTemperatures(String inputName, String outputName) throws IOException {
         int min = 2730;
+        int max = 5000;
         ArrayList<Integer> list = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(inputName));
         String str = reader.readLine();
-        // При записи чисел из файла в list переводим их в целые (умножение на 10)
+        // При записи чисел из файла в list переводим их в целые (умножение на 10) и сдвигаем на min
         while (str != null) {
-            int t = (int) (Double.parseDouble(str) * 10);
+            int t = (int) (Double.parseDouble(str) * 10 + min);
             list.add(t);
             str = reader.readLine();
         }
         reader.close();
-        // Переносим числа в массив, чтобы использовать метод quickSort
+        // Переносим числа в массив, чтобы использовать метод countingSort
         int size = list.size();
         int[] arr = new int[size];
         for (int i = 0; i < size; i++) {
             arr[i] = list.get(i);
         }
-        Sorts.quickSort(arr);
+        arr = Sorts.countingSort(arr, min + max);
         // Переводим значения в изначальный формат и записываем в выходной файл
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputName));
         for (int el : arr) {
-            double t = (double) el / 10;
+            double t = (double) (el - min) / 10;
             writer.write(String.valueOf(t));
             writer.newLine();
         }
         writer.close();
     }
-    // Трудоемкость = O(N)
-    // Ресурсоемкость = O(N)
+    // Трудоемкость = O(N + K), где K = 2730 + 5000 + 1 = 7731
+    // Ресурсоемкость = O(K)
 
     /**
      * Сортировка последовательности

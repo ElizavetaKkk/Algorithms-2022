@@ -3,6 +3,8 @@ package lesson2;
 import kotlin.NotImplementedError;
 import kotlin.Pair;
 
+import java.util.Arrays;
+
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
     /**
@@ -97,9 +99,29 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
-    static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
+    static public String longestCommonSubstring(String first, String second) {
+        int length1 = first.length() + 1;
+        int length2 = second.length() + 1;
+        int[][] matrix = new int[length1][length2];
+        int max = 0;
+        int ind = 0;
+        // Записываем в матрицу кол-во повторений идущих подряд букв из строк
+        // Параллельно обновляем значение max
+        for (int i = 1; i < length1; i++) {
+            for (int j = 1; j < length2; j++) {
+                if (first.charAt(i - 1) == second.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1] + 1;
+                    if (matrix[i][j] > max) {
+                        max = matrix[i][j];
+                        ind = i;
+                    }
+                }
+            }
+        }
+        return first.substring(ind - max, ind);
     }
+    // Трудоемкость = O(length1 * length2)
+    // Ресурсоемкость = O(length1 * length2)
 
     /**
      * Число простых чисел в интервале
@@ -112,6 +134,21 @@ public class JavaAlgorithms {
      * Единица простым числом не считается.
      */
     static public int calcPrimesNumber(int limit) {
-        throw new NotImplementedError();
+        if (limit <= 1) return 0;
+        if (limit == 2) return 1;
+        int[] arr = new int[limit + 1];
+        Arrays.fill(arr, 1);
+        int count = 0;
+        for (int i = 2; i <= limit; i++) {
+            if (arr[i] == 1) {
+                for (int j = 2; i * j <= limit; j++) {
+                    arr[i * j] = 0;
+                }
+                count++;
+            }
+        }
+        return count;
     }
+    //Трудоемкость = O(limit * log(log(limit)))
+    //Ресурсоемкость = O(limit)
 }
