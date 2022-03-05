@@ -220,6 +220,19 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("All clear!")
         }
+        val controlSet = TreeSet<Int>()
+        val binarySet = create()
+        assertFalse { binarySet.iterator().hasNext() }
+        for (el in listOf(5, 9, -3, 0, -6, 8, 1, -2, 2, 4)) {
+            controlSet.add(el)
+            binarySet.add(el)
+        }
+        val controlIter = controlSet.iterator()
+        val iterator = binarySet.iterator()
+        controlIter.forEach {
+            assertTrue { it.compareTo(iterator.next()) == 0 }
+        }
+        assertTrue { !iterator.hasNext() && !controlIter.hasNext() }
     }
 
     protected fun doIteratorRemoveTest() {
@@ -287,6 +300,19 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("All clear!")
         }
+        val controlSet = TreeSet<Int>()
+        val binarySet = create()
+        assertFalse { binarySet.iterator().hasNext() }
+        for (el in listOf(0, 5, -5, 6, 9, -2, -3, 4, 5, 7, -9)) {
+            binarySet.add(el)
+            if (el % 2 == 0) controlSet.add(el)
+        }
+        val iterator = binarySet.iterator()
+        while (iterator.hasNext()) {
+            if (iterator.next() % 2 == 1) iterator.remove()
+        }
+        for (el in controlSet) assertTrue { binarySet.contains(el) }
+        assertTrue { !iterator.hasNext() }
     }
 
     protected fun doSubSetTest() {

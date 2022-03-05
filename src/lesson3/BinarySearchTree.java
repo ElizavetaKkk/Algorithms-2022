@@ -116,8 +116,8 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      *
      * Средняя
      */
-    // Трудоемкость: O(log(H)) - лучший случай, O(H) - худший (H - высота дерева)
-    // Ресурсоемкость: O(1)
+    // Трудоемкость = O(log(H)) - лучший случай, O(H) - худший (H - высота дерева)
+    // Ресурсоемкость = O(1)
 
     @Override
     public boolean remove(Object o) {
@@ -211,6 +211,8 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         public boolean hasNext() {
             return index < list.size() - 1;
         }
+        // Трудоемкость = O(1)
+        // Ресурсоемкость = O(1)
 
         /**
          * Получение следующего элемента
@@ -227,11 +229,13 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public T next() {
-            if (!hasNext()) throw new NoSuchElementException("The next element is not exist");
+            if (!hasNext()) throw new NoSuchElementException();
             index++;
             nodeValue = list.get(index);
             return nodeValue;
         }
+        // Трудоемкость = O(1)
+        // Ресурсоемкость = O(1)
 
         /**
          * Удаление предыдущего элемента
@@ -247,10 +251,12 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public void remove() {
-            if (nodeValue == null) throw new IllegalStateException("The set does not contains this value");
+            if (nodeValue == null) throw new IllegalStateException();
             BinarySearchTree.this.remove(nodeValue);
             nodeValue = null;
         }
+        // Трудоемкость = O(N)
+        // Ресурсоемкость = O(1)
     }
 
     /**
