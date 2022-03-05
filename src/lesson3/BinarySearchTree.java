@@ -179,9 +179,22 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     }
 
     public class BinarySearchTreeIterator implements Iterator<T> {
+        private ArrayList<T> list;
+        private int index;
+        T nodeValue;
 
         private BinarySearchTreeIterator() {
-            // Добавьте сюда инициализацию, если она необходима.
+            this.list = new ArrayList<>();
+            this.index = -1;
+            addSubTree(root);
+        }
+
+        private void addSubTree(Node<T> node) {
+            if (node != null) {
+                addSubTree(node.left);
+                list.add(node.value);
+                addSubTree(node.right);
+            }
         }
 
         /**
@@ -196,8 +209,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public boolean hasNext() {
-            // TODO
-            throw new NotImplementedError();
+            return index < list.size() - 1;
         }
 
         /**
@@ -215,8 +227,10 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public T next() {
-            // TODO
-            throw new NotImplementedError();
+            if (!hasNext()) throw new NoSuchElementException("The next element is not exist");
+            index++;
+            nodeValue = list.get(index);
+            return nodeValue;
         }
 
         /**
@@ -233,8 +247,9 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public void remove() {
-            // TODO
-            throw new NotImplementedError();
+            if (nodeValue == null) throw new IllegalStateException("The set does not contains this value");
+            BinarySearchTree.this.remove(nodeValue);
+            nodeValue = null;
         }
     }
 
