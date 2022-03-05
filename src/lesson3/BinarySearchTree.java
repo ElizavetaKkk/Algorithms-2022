@@ -47,6 +47,23 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         }
     }
 
+    private Node<T> findParent(Node<T> start, Node<T> node) {
+        if (root.value == node.value) return null;
+        T value = node.value;
+        if (start.left != null && start.left.value.compareTo(value) == 0 ||
+                start.right != null && start.right.value.compareTo(value) == 0) {
+            return start;
+        }
+        else {
+            if (value.compareTo(start.value) < 0 && start.left != null) {
+                return findParent(start.left, node);
+            }
+            else {
+                return findParent(start.right, node);
+            }
+        }
+    }
+
     @Override
     public boolean contains(Object o) {
         @SuppressWarnings("unchecked")
@@ -99,10 +116,54 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      *
      * Средняя
      */
+    // Трудоемкость: O(log(H)) - лучший случай, O(H) - худший (H - высота дерева)
+    // Ресурсоемкость: O(1)
+
     @Override
     public boolean remove(Object o) {
-        // TODO
-        throw new NotImplementedError();
+        if (root == null) return false;
+        T t = (T) o;
+        Node<T> node = find(t);
+        if (node == null || t.compareTo(node.value) != 0) return false;
+        Node<T> nodeParent = findParent(root, node);
+        boolean left = node.left == null;
+        boolean right = node.right == null;
+        Node<T> replaceNode;
+        // Для удаления узла без потомков
+        if (left && right) {
+            replaceNode = null;
+        }
+        // Для удаления узла с одним потомком
+        else if (left) {
+            replaceNode = node.right;
+        }
+        else if (right) {
+            replaceNode = node.left;
+        }
+        // Для удаления узла с двумя потомками
+        else {
+            replaceNode = minValueNode(node.right);
+            Node<T> replaceNodeParent = findParent(node, replaceNode);
+            remove(replaceNode.value);
+            size++;
+            replaceNode.left = node.left;
+            replaceNode.right = node.right;
+        }
+        if (nodeParent == null) {
+            root = replaceNode;
+        }
+        else if (node.value.compareTo(nodeParent.value) < 0) {
+            nodeParent.left = replaceNode;
+        }
+        else {
+            nodeParent.right = replaceNode;
+        }
+        size--;
+        return true;
+    }
+
+    private Node<T> minValueNode(Node<T> start) {
+        return start.left == null ? start : minValueNode(start.left);
     }
 
     @Nullable

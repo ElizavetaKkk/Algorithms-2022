@@ -162,6 +162,21 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("All clear!")
         }
+        val controlSet = mutableSetOf(12, 3, -5, 66, -8, -11, 2, 0, 9, 23, 45, -38)
+        val binarySet = create()
+        for (element in controlSet) {
+            binarySet += element
+        }
+        assertFalse(binarySet.remove(-10))
+        for (el in controlSet) {
+            assertTrue(binarySet.contains(el))
+        }
+        assertTrue(binarySet.remove(23))
+        assertFalse(binarySet.contains(23))
+        controlSet.remove(23)
+        for (el in controlSet) {
+            assertTrue(binarySet.contains(el))
+        }
     }
 
     protected fun doIteratorTest() {
