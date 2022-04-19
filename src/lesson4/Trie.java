@@ -1,7 +1,7 @@
 package lesson4;
 
 import java.util.*;
-import kotlin.NotImplementedError;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -92,8 +92,55 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     @NotNull
     @Override
     public Iterator<String> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new TrieIterator();
+    }
+
+    public class TrieIterator implements Iterator<String> {
+        ArrayDeque<String> elements = new ArrayDeque<>();
+        String currEl;
+
+        TrieIterator() {
+            if (root != null) find(root, "");
+        }
+
+        void find(Node node, String el) {
+            for (Map.Entry<Character, Node> child : node.children.entrySet()) {
+                if (child.getKey() == '\0') {
+                    elements.add(el);
+                }
+                else {
+                    find(child.getValue(), el + child.getKey());
+                }
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !elements.isEmpty();
+        }
+        // Трудоемкость = O(1)
+        // Ресурсоемкость = O(1)
+
+        @Override
+        public String next() {
+            currEl = elements.pop();
+            return currEl;
+        }
+        // Трудоемкость = O(N)
+        // Ресурсоемкость = O(N)
+
+        @Override
+        public void remove() {
+            if (currEl != null) {
+                Trie.this.remove(currEl);
+                currEl = null;
+            }
+            else {
+                throw new IllegalStateException();
+            }
+        }
+        // Трудоемкость = O(N)
+        // Ресурсоемкость = O(N)
     }
 
 }
