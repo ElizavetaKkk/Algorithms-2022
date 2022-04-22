@@ -1,14 +1,12 @@
 package lesson5;
 
+import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 import java.util.AbstractSet;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
-
-    private final Object occupied = new Object();
 
     private final int bits;
 
@@ -17,6 +15,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     private final Object[] storage;
 
     private int size = 0;
+
+    private Object removed = new Object();
 
     private int startingIndex(Object element) {
         return element.hashCode() & (0x7FFFFFFF >> (31 - bits));
@@ -42,21 +42,15 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @Override
     public boolean contains(Object o) {
         int index = startingIndex(o);
-        int startIndex = index;
         Object current = storage[index];
-        while (true) {
-            if (current == occupied) {
-                index = (index + 1) % capacity;
-                if (index == startIndex) return false;
-                current = storage[index];
-                continue;
+        while (current != null) {
+            if (current.equals(o)) {
+                return true;
             }
-            if (current == null) return false;
-            if (current.equals(o)) return true;
             index = (index + 1) % capacity;
-            if (index == startIndex) return false;
             current = storage[index];
         }
+        return false;
     }
 
     /**
@@ -74,7 +68,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null && current != occupied) {
+        while (current != null && current != removed) {
             if (current.equals(t)) {
                 return false;
             }
@@ -100,41 +94,30 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      *
      * Средняя
      */
-
-    // R = O(1), T = O(n), n - capacity
     @Override
     public boolean remove(Object o) {
-        int index = startingIndex(o);
-        int startIndex = index;
-        Object current = storage[index];
-        while (current != null) {
-            if (current.equals(o)) {
-                remove(index); //  R = O(1), T = O(1)
+        if (contains(o)) {
+            int ind = startingIndex(o);
+            if (storage[ind].equals(o)) {
+                storage[ind] = removed;
+                size--;
                 return true;
             }
-            index = (index + 1) % capacity;
-            if (index == startIndex) break;
-            current = storage[index];
+            int startInd = ind;
+            ind = (ind + 1) % capacity;
+            while(ind != startInd) {
+                if (storage[ind].equals(o)) {
+                    storage[ind] = removed;
+                    size--;
+                    return true;
+                }
+                ind = (ind + 1) % capacity;
+            }
         }
         return false;
     }
-
-    //  R = O(1), T = O(1)
-    public void remove(int index) {
-        storage[index] = occupied;
-        size--;
-    }
-
-
-    private int getNextIndex(int startIndex) {
-        int index = startIndex;
-        Object current = storage[index];
-        while (current == null || current == occupied){
-            index = (index + 1) % capacity;
-            current = storage[index];
-        }
-        return index;
-    }
+    // Трудоемкость = O(N)
+    // Ресурсоемкость = O(1)
 
     /**
      * Создание итератора для обхода таблицы
@@ -148,41 +131,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @NotNull
     @Override
-    public Iterator<T> iterator() { return new OpenAddressingSetIterator(); }
-
-    public class OpenAddressingSetIterator implements Iterator<T> {
-        private int lastIndex;
-        private int startIndex;
-        private int count;
-
-        private OpenAddressingSetIterator() {
-            count = size;
-            startIndex = 0;
-            lastIndex = -1;
-        }
-
-        //      T = O(1), R = O(1)
-        @Override
-        public boolean hasNext() {
-            return count != 0;
-        }
-
-        //      T = O(n), R = O(1)
-        @Override
-        public T next() {
-            if (!hasNext()) throw new NoSuchElementException();
-            startIndex = getNextIndex(startIndex) + 1; //R = O(1), T = O(n), n - capacity
-            lastIndex = startIndex - 1;
-            count -= 1;
-            return (T) storage[lastIndex];
-        }
-
-        //      T = O(1), R = O(1)
-        @Override
-        public void remove() {
-            if (lastIndex == -1) throw new IllegalStateException();
-            OpenAddressingSet.this.remove(lastIndex); // T = O(1), R = O(1)
-            lastIndex = -1;
-        }
+    public Iterator<T> iterator() {
+        // TODO
+        throw new NotImplementedError();
     }
 }
