@@ -77,6 +77,27 @@ abstract class AbstractOpenAddressingSetTest {
                 )
             }
         }
+        val bitsNumber = 4
+        val openAddressingSet = create<Int>(bitsNumber)
+        for (i in 1..10) {
+            openAddressingSet += i
+        }
+        val expectedSize = openAddressingSet.size - 1
+        val randomNumber = (1..10).random()
+        openAddressingSet.remove(randomNumber)
+        assertEquals(
+            expectedSize, openAddressingSet.size,
+            "The size of the set is not as expected."
+        )
+        assertFalse(
+            randomNumber in openAddressingSet,
+            "A supposedly removed element is still in the set."
+        )
+        openAddressingSet.remove(11)
+        assertEquals(
+            expectedSize, openAddressingSet.size,
+            "The size of the set is not as expected."
+        )
     }
 
     protected fun doIteratorTest() {
@@ -119,6 +140,35 @@ abstract class AbstractOpenAddressingSetTest {
             }
             println("All clear!")
         }
+        val controlSet = mutableSetOf<Int>()
+        val openAddressingSet = create<Int>(4)
+        for (i in 1..16) {
+            val randomValue = (1..100).random()
+            openAddressingSet += randomValue
+            controlSet += randomValue
+        }
+        val iterator1 = openAddressingSet.iterator()
+        val iterator2 = openAddressingSet.iterator()
+        println("Checking if calling hasNext() changes the state of the iterator...")
+        while (iterator1.hasNext()) {
+            assertEquals(
+                iterator2.next(), iterator1.next(),
+                "Calling OpenAddressingSetIterator.hasNext() changes the state of the iterator."
+            )
+        }
+        val openAddressingSetIter = openAddressingSet.iterator()
+        println("Checking if the iterator traverses the entire set...")
+        while (openAddressingSetIter.hasNext()) {
+            controlSet.remove(openAddressingSetIter.next())
+        }
+        assertTrue(
+            controlSet.isEmpty(),
+            "OpenAddressingSetIterator doesn't traverse the entire set."
+        )
+        assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
+            openAddressingSetIter.next()
+        }
+        println("All clear!")
     }
 
     protected fun doIteratorRemoveTest() {
@@ -176,5 +226,35 @@ abstract class AbstractOpenAddressingSetTest {
             }
             println("All clear!")
         }
+        val controlSet = mutableSetOf<Int>()
+        val openAddressingSet = create<Int>(4)
+        for (i in 1..16) {
+            val value = i - 1
+            openAddressingSet += value
+            controlSet += value
+        }
+        val iterator = openAddressingSet.iterator()
+        assertFailsWith<IllegalStateException>("Something was supposedly deleted before the iteration started") {
+            iterator.remove()
+        }
+        openAddressingSet.remove(1)
+        controlSet.remove(1)
+        assertEquals(
+            controlSet.size, openAddressingSet.size,
+            "The size of the set is incorrect: was ${openAddressingSet.size}, should've been ${controlSet.size}."
+        )
+        for (element in controlSet) {
+            assertTrue(
+                openAddressingSet.contains(element),
+                "Open addressing set doesn't have the element $element from the control set."
+            )
+        }
+        for (element in openAddressingSet) {
+            assertTrue(
+                controlSet.contains(element),
+                "Open addressing set has the element $element that is not in control set."
+            )
+        }
+        println("All clear!")
     }
 }

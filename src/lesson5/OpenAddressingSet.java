@@ -1,9 +1,9 @@
 package lesson5;
 
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
@@ -16,7 +16,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
 
     private int size = 0;
 
-    private Object removed = new Object();
+    private final Object removed = new Object();
 
     private int startingIndex(Object element) {
         return element.hashCode() & (0x7FFFFFFF >> (31 - bits));
@@ -132,7 +132,43 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new OpenAddressingSetIterator();
+    }
+
+    private class OpenAddressingSetIterator implements Iterator<T> {
+
+        private int currInd = 0;
+
+        private int removeId = -1;
+
+        @Override
+        public boolean hasNext() {
+            if (size == 0) return false;
+            while (currInd < capacity && (storage[currInd] == null || storage[currInd] == removed))
+                currInd++;
+            return currInd < capacity;
+        }
+        // Трудоемкость = O(1) - лучший случай, O(N) - худший
+        // Ресурсоемкость = O(1)
+
+        @Override
+        public T next() {
+            if (!hasNext()) throw new NoSuchElementException();
+            removeId = currInd;
+            Object currentObj = storage[currInd];
+            currInd++;
+            return (T) currentObj;
+        }
+        // Трудоемкость = O(1) - лучший, O(N) - худший
+        // Ресурсоемкость = O(1)
+
+        @Override
+        public void remove() {
+            if (removeId == -1 || storage[removeId] == null) throw new IllegalStateException();
+            else storage[removeId] = removed;
+            size--;
+        }
+        // Трудоемкость = O(1)
+        // Ресурсоемкость = O(1)
     }
 }
