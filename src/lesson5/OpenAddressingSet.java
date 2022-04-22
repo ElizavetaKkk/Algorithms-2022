@@ -1,13 +1,14 @@
 package lesson5;
 
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
+
+    private final Object occupied = new Object();
 
     private final int bits;
 
@@ -41,15 +42,21 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @Override
     public boolean contains(Object o) {
         int index = startingIndex(o);
+        int startIndex = index;
         Object current = storage[index];
-        while (current != null) {
-            if (current.equals(o)) {
-                return true;
+        while (true) {
+            if (current == occupied) {
+                index = (index + 1) % capacity;
+                if (index == startIndex) return false;
+                current = storage[index];
+                continue;
             }
+            if (current == null) return false;
+            if (current.equals(o)) return true;
             index = (index + 1) % capacity;
+            if (index == startIndex) return false;
             current = storage[index];
         }
-        return false;
     }
 
     /**
@@ -67,7 +74,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && current != occupied) {
             if (current.equals(t)) {
                 return false;
             }
@@ -93,9 +100,40 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      *
      * Средняя
      */
+
+    // R = O(1), T = O(n), n - capacity
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
+        int index = startingIndex(o);
+        int startIndex = index;
+        Object current = storage[index];
+        while (current != null) {
+            if (current.equals(o)) {
+                remove(index); //  R = O(1), T = O(1)
+                return true;
+            }
+            index = (index + 1) % capacity;
+            if (index == startIndex) break;
+            current = storage[index];
+        }
+        return false;
+    }
+
+    //  R = O(1), T = O(1)
+    public void remove(int index) {
+        storage[index] = occupied;
+        size--;
+    }
+
+
+    private int getNextIndex(int startIndex) {
+        int index = startIndex;
+        Object current = storage[index];
+        while (current == null || current == occupied){
+            index = (index + 1) % capacity;
+            current = storage[index];
+        }
+        return index;
     }
 
     /**
@@ -110,8 +148,41 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @NotNull
     @Override
-    public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+    public Iterator<T> iterator() { return new OpenAddressingSetIterator(); }
+
+    public class OpenAddressingSetIterator implements Iterator<T> {
+        private int lastIndex;
+        private int startIndex;
+        private int count;
+
+        private OpenAddressingSetIterator() {
+            count = size;
+            startIndex = 0;
+            lastIndex = -1;
+        }
+
+        //      T = O(1), R = O(1)
+        @Override
+        public boolean hasNext() {
+            return count != 0;
+        }
+
+        //      T = O(n), R = O(1)
+        @Override
+        public T next() {
+            if (!hasNext()) throw new NoSuchElementException();
+            startIndex = getNextIndex(startIndex) + 1; //R = O(1), T = O(n), n - capacity
+            lastIndex = startIndex - 1;
+            count -= 1;
+            return (T) storage[lastIndex];
+        }
+
+        //      T = O(1), R = O(1)
+        @Override
+        public void remove() {
+            if (lastIndex == -1) throw new IllegalStateException();
+            OpenAddressingSet.this.remove(lastIndex); // T = O(1), R = O(1)
+            lastIndex = -1;
+        }
     }
 }
