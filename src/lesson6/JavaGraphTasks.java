@@ -2,6 +2,7 @@ package lesson6;
 
 import kotlin.NotImplementedError;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -94,7 +95,25 @@ public class JavaGraphTasks {
      * Если на входе граф с циклами, бросить IllegalArgumentException
      */
     public static Set<Graph.Vertex> largestIndependentVertexSet(Graph graph) {
-        throw new NotImplementedError();
+        Set<Set<Graph.Vertex>> indSets = new HashSet<>();
+        for (Graph.Vertex vertex1 : graph.getVertices()){
+            //Set независимых вершин в данном проходе цикла
+            Set<Graph.Vertex> indVertices = new HashSet<>();
+            //Set для неподходящих вершин, так как они являются соседями вершин из indVertices
+            Set<Graph.Vertex> unsVertices = new HashSet<>();
+            for (Graph.Vertex vertex2 : graph.getVertices()){
+                if (!unsVertices.contains(vertex2) && !graph.getNeighbors(vertex1).contains(vertex2)) {
+                    unsVertices.addAll(graph.getNeighbors(vertex2));
+                    indVertices.add(vertex2);
+                }
+            }
+            indSets.add(indVertices);
+        }
+        Set<Graph.Vertex> res = new HashSet<>();
+        for (Set<Graph.Vertex> set : indSets) {
+            if (res.size() < set.size()) res = set;
+        }
+        return res;
     }
 
     /**
