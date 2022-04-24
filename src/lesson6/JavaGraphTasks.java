@@ -5,6 +5,7 @@ import kotlin.NotImplementedError;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 @SuppressWarnings("unused")
 public class JavaGraphTasks {
@@ -137,7 +138,25 @@ public class JavaGraphTasks {
      * Ответ: A, E, J, K, D, C, H, G, B, F, I
      */
     public static Path longestSimplePath(Graph graph) {
-        throw new NotImplementedError();
+        Stack<Path> paths = new Stack<>();
+        Path res = new Path();
+        Set<Graph.Vertex> vertices = graph.getVertices();
+        int longest = 0;
+        for (Graph.Vertex vertex: vertices) paths.push(new Path(vertex));
+        while (!paths.isEmpty()) {
+            //Ищем самый длинный
+            Path path = paths.pop();
+            if (longest < path.getLength()){
+                res = path;
+                longest = res.getLength();
+            }
+            //Соседи последней вершины path
+            Set<Graph.Vertex> neighbours = graph.getNeighbors(path.getVertices().get(path.getLength()));
+            for (Graph.Vertex neighbour : neighbours){
+                if(!path.contains(neighbour)) paths.push(new Path(path, graph, neighbour));
+            }
+        }
+        return res;
     }
 
 
