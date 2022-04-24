@@ -126,21 +126,17 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             currEl = elements.pop();
             return currEl;
         }
-        // Трудоемкость = O(N)
-        // Ресурсоемкость = O(N)
+        // Трудоемкость = O(1)
+        // Ресурсоемкость = O(1)
 
         @Override
         public void remove() {
-            if (currEl != null) {
-                Trie.this.remove(currEl);
-                currEl = null;
-            }
-            else {
-                throw new IllegalStateException();
-            }
+            if (currEl == null) throw new IllegalStateException();
+            Trie.this.remove(currEl);
+            currEl = null;
         }
-        // Трудоемкость = O(N)
-        // Ресурсоемкость = O(N)
+        // Трудоемкость = O(log(N))
+        // Ресурсоемкость = O(1)
     }
 
 }

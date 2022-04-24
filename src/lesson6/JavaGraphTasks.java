@@ -116,7 +116,7 @@ public class JavaGraphTasks {
         }
         return res;
     }
-    //Трудоемкость = O(N * N)
+    //Трудоемкость = O(N^2)
     //Ресурсоемкость = O(N)
 
     /**
