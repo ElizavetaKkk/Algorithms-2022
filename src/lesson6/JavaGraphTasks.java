@@ -116,6 +116,8 @@ public class JavaGraphTasks {
         }
         return res;
     }
+    //Трудоемкость = O(N * N)
+    //Ресурсоемкость = O(N)
 
     /**
      * Наидлиннейший простой путь.
@@ -144,7 +146,7 @@ public class JavaGraphTasks {
         int longest = 0;
         for (Graph.Vertex vertex: vertices) paths.push(new Path(vertex));
         while (!paths.isEmpty()) {
-            //Ищем самый длинный
+            //Ищем самый длинный путь
             Path path = paths.pop();
             if (longest < path.getLength()){
                 res = path;
@@ -158,7 +160,11 @@ public class JavaGraphTasks {
         }
         return res;
     }
-
+    //Трудоемкость = O(N!)
+    //Ресурсоемкость = O(N^2)
+    //Максимальный размер paths = N - 1 + (N - 1) - 1 + (N - 2) - 1 +..+ (N - (N + 1)) =
+    // = N + (N - 1) + (N - 2) +..+ 2 + 1 - 1*(N - 1) = N * (N + 1) / 2 - (N - 1) = (N + N^2 - 2N + 2)/2 =
+    // = (N^2 - N + 2)/2 -> O((N^2 - N + 2)/2) -> O(N^2)
 
     /**
      * Балда
