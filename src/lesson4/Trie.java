@@ -96,47 +96,66 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     }
 
     public class TrieIterator implements Iterator<String> {
-        ArrayDeque<String> elements = new ArrayDeque<>();
-        String currEl;
+        private final Deque<Iterator<Map.Entry<Character, Node>>> deque = new ArrayDeque<>();
+        private final StringBuilder builder = new StringBuilder();
+        private String nextWord;
+        private int count = 0;
 
-        TrieIterator() {
-            if (root != null) find(root, "");
-        }
-
-        void find(Node node, String el) {
-            for (Map.Entry<Character, Node> child : node.children.entrySet()) {
-                if (child.getKey() == '\0') {
-                    elements.add(el);
-                }
-                else {
-                    find(child.getValue(), el + child.getKey());
-                }
-            }
+        private TrieIterator() {
+            deque.push(root.children.entrySet().iterator());
         }
 
         @Override
         public boolean hasNext() {
-            return !elements.isEmpty();
+            return size > count;
         }
-        // Трудоемкость = O(1)
-        // Ресурсоемкость = O(1)
+        // Трудоемксость = O(1)
+        // Ресурсоёмкость = O(1)
 
         @Override
         public String next() {
-            currEl = elements.pop();
-            return currEl;
+            if (!hasNext()) throw new NoSuchElementException();
+            findNext();
+            return nextWord;
         }
-        // Трудоемкость = O(1)
-        // Ресурсоемкость = O(1)
+        // Трудоемксость = O(N)
+        // Ресурсоемкость = O(H), H - длина самого длинного слова
+
+        public void findNext() {
+            Iterator<Map.Entry<Character, Node>> iterator = deque.peek();
+            while (iterator != null){
+                while (iterator.hasNext()) {
+                    Map.Entry<Character, Node> next = iterator.next();
+                    char key = next.getKey();
+                    Node val = next.getValue();
+                    if (key == (char) 0) {
+                        this.nextWord = builder.toString();
+                        count++;
+                        return;
+                    }
+                    iterator = val.children.entrySet().iterator();
+                    deque.push(iterator);
+                    builder.append(key);
+                }
+                deque.pop();
+                if (!builder.isEmpty()) {
+                    builder.deleteCharAt(builder.length() - 1);
+                }
+                iterator = deque.peek();
+            }
+        }
 
         @Override
         public void remove() {
-            if (currEl == null) throw new IllegalStateException();
-            Trie.this.remove(currEl);
-            currEl = null;
+            if (nextWord == null) throw new IllegalStateException();
+            if (deque.peek() != null) {
+                deque.peek().remove();
+                nextWord = null;
+                count--;
+                size--;
+            }
         }
-        // Трудоемкость = O(log(N))
+        // Трудоемксость = O(1)
         // Ресурсоемкость = O(1)
     }
-
 }

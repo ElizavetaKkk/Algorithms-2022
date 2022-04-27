@@ -96,23 +96,18 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @Override
     public boolean remove(Object o) {
-        if (contains(o)) {
-            int ind = startingIndex(o);
-            if (storage[ind].equals(o)) {
+        int startInd = startingIndex(o);
+        int ind = startInd;
+        Object currEl = storage[ind];
+        while (currEl != null) {
+            if (currEl.equals(o)) {
                 storage[ind] = removed;
                 size--;
                 return true;
             }
-            int startInd = ind;
             ind = (ind + 1) % capacity;
-            while(ind != startInd) {
-                if (storage[ind].equals(o)) {
-                    storage[ind] = removed;
-                    size--;
-                    return true;
-                }
-                ind = (ind + 1) % capacity;
-            }
+            if (ind == startInd) return false;
+            currEl = storage[ind];
         }
         return false;
     }
