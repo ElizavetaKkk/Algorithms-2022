@@ -97,6 +97,7 @@ public class JavaGraphTasks {
      */
     public static Set<Graph.Vertex> largestIndependentVertexSet(Graph graph) {
         Set<Set<Graph.Vertex>> indSets = new HashSet<>();
+        Set<Graph.Vertex> check = new HashSet<>();
         for (Graph.Vertex vertex1 : graph.getVertices()){
             //Set независимых вершин в данном проходе цикла
             Set<Graph.Vertex> indVertices = new HashSet<>();
@@ -107,6 +108,9 @@ public class JavaGraphTasks {
                     unsVertices.addAll(graph.getNeighbors(vertex2));
                     indVertices.add(vertex2);
                 }
+                if (graph.getNeighbors(vertex1).size() < 2) continue;
+                if (!check.containsAll(graph.getNeighbors(vertex1))) check.add(vertex1); // Проверка на наличие циклов
+                else throw new IllegalArgumentException();
             }
             indSets.add(indVertices);
         }
